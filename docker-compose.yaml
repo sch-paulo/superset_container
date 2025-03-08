@@ -1,10 +1,11 @@
 services:
   postgres:
     image: postgres:14 # busca no acervo de imagens do Docker, a imagem do Postgres 14
+    env_file: .env  # carrega variáveis de ambiente do .docker
     environment: # define as variáveis de ambiente do container
-      POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
-      POSTGRES_DB: superset
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes: # monta um volume que armazena a base de dados mesmo o container estando inativo
       - postgres_data:/var/lib/postgresql/data # define o path do volume, onde os dados ficarão armazenados
     networks: # permite comunicação entre os serviços
@@ -14,12 +15,13 @@ services:
     build: . # busca um Dockerfile no diretório especificado
     ports:
       - "8088:8088" # porta-host:porta-container
-    environment: 
-      SUPERSET_SECRET_KEY: 123456abcde # necessário, se não o Superset se recusa a iniciar
+    env_file: .env
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY} # necessário, se não o Superset se recusa a iniciar
       SUPERSET_DATABASE_HOST: postgres
-      SUPERSET_DATABASE_USER: superset
-      SUPERSET_DATABASE_PASSWORD: superset
-      SUPERSET_DATABASE_DB: superset
+      SUPERSET_DATABASE_USER: ${POSTGRES_USER}
+      SUPERSET_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      SUPERSET_DATABASE_DB: ${POSTGRES_DB}
     depends_on: # aguarda até o serviço do Postgres estar rodando para iniciar
       - postgres
     networks: 
